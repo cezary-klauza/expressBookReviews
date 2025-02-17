@@ -34,7 +34,7 @@ regd_users.post("/login", (req,res) => {
       token, username
     }
 
-    return res.status(200).send("User successfully logged in");
+    return res.status(200).json({message: "User successfully logged in"});
   } else
       return res.status(208).json({ message: "Invalid Login. Check username and password" });
 });
@@ -48,19 +48,11 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
 
   const username = req.session.authorization.username;
 
-  const { review: message } = req.body;
+  const { review } = req.body;
 
-  const review = {
-    username,
-    message
-  }
+  books[isbn].reviews[username] = review;
 
-  if(book.reviews.find(({username: us}) => us === username)){
-    const index = book.reviews.findIndex(({username: us}) => us === username);
-    books[isbn].reviews[index] = review;
-  } else books[isbn].reviews.push(review);
-
-  return res.status(300).json({message: "Yet to be implemented"});
+  return res.status(200).json({message: "Review added successfully!"});
 });
 
 regd_users.delete("/auth/review/:isbn", (req, res) => {
@@ -71,9 +63,8 @@ regd_users.delete("/auth/review/:isbn", (req, res) => {
   if(!book) return res.status(400).json({ message: 'Invalid isbn!' })
 
   const username = req.session.authorization.username;
-  const index = book.reviews.findIndex(({username: us}) => us === username)
 
-  books[isbn].reviews.splice(index, 1);
+  delete books[isbn].reviews[username]
 
   return res.status(200).json({ message: 'Review deleted successfully!'});
 });
